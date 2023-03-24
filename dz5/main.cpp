@@ -145,5 +145,11 @@ int main() {
     A.input();
     A.check();
 
+    delete[] A.figures[King];
+    delete[] A.figures[Rook];
+    delete[] A.figures[Bishop];
+    delete[] A.figures[Queen];
+    delete[] A.figures[Knight];
+
     return 0;
 }
