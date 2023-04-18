@@ -4,6 +4,16 @@
 #include<stdio.h>
 #define N 20
 
+struct Exception{
+    const std::string s;
+    int par1, par2;
+    bool is2nd;
+    void print()const{
+        std::cerr << "Exception: problem in " << s << " incorrect parameter:" << par1;
+        if (is2nd) std::cerr << ' ' << par2;
+    }
+};
+
 class mstring{
     char* arr;
     size_t sz;
@@ -24,7 +34,7 @@ public:
     void add(const char* str);
     void insert(char c, int i);
     void insert(const char* str, int i);
-    void del(int i){this->del(i,i);};
+    void del(int i);
     void del(int i, int j);
     int search(const char* str)const;
     void replace(const char* substr, const char* newstr);
@@ -41,15 +51,39 @@ public:
     bool operator>=(const mstring& another)const{return (strcmp(this->arr,another.arr) >= 0);}
     bool operator<=(const mstring& another)const{return (strcmp(this->arr,another.arr) <= 0);}
     bool operator==(const mstring& another)const{return (strcmp(this->arr,another.arr) == 0);}
-    char& operator[](int i)const{return this->arr[i];}
-
+    char& operator[](int i);
+    char operator[](int i)const;
 };
 
 //Operators
+char& mstring::operator[](int i){
+    if(i < 0 || (size_t)i >= sz){
+        Exception ex = {"operator[]", i, 0, false};
+        throw ex;
+    }
+    return this->arr[i];
+}
+
+char mstring::operator[](int i)const{
+    if(i < 0 || (size_t)i >= sz){
+        Exception ex = {"operator[]", i, 0, false};
+        throw ex;
+    }
+    return this->arr[i];
+}
+
 mstring operator*(int n, const mstring& str){
+    if(n < 0){
+        Exception ex = {"operator*", n, 0, false};
+        throw ex;
+    }
     return str * n;
 }
 mstring mstring::operator*(int n)const{
+    if(n < 0){
+        Exception ex = {"operator*", n, 0, false};
+        throw ex;
+    }
     mstring res;
     for(int i=1; i<=n; i++) res.add(this->arr);
     return res;
@@ -90,7 +124,7 @@ std::ostream& operator<<(std::ostream& os, const mstring& str){
 
 //Functions
 void mstring::replace(const char* substr, const char* newstr){
-    if(substr == nullptr || newstr == substr) return;
+    if(substr == nullptr || newstr == nullptr) return;
     int i = this->search(substr);
     int len = strlen(substr);
     if (i == -1) return;
@@ -104,7 +138,20 @@ int mstring::search(const char* str)const{
     if (substr == nullptr) return -1;
     return substr - arr;
 }
+
+void mstring::del(int i){
+    if(i < 0 || (size_t)i >= sz){
+        Exception ex = {"del", i, 0, false};
+        throw ex;
+    }
+    this->del(i, i);
+}
+
 void mstring::del(int i, int j){
+    if((i < 0) || ((size_t)j >= sz) || (i > j)){
+        Exception ex = {"del", i, j, true};
+        throw ex;
+    }
     char* substr = new char[sz-j];
     memcpy(substr, &(arr[j+1]), sz-j);
     memcpy(&(arr[i]), substr, sz-j);
@@ -112,6 +159,10 @@ void mstring::del(int i, int j){
     delete[] substr;
 }
 void mstring::insert(const char* str, int i){
+    if(i < 0 || (size_t)i > sz){
+        Exception ex = {"insert", i, 0, false};
+        throw ex;
+    }
     if (str == nullptr) return;
     size_t len = strlen(str);
     if(cap-1-sz < len) this->increase(len - (cap-1-sz));
@@ -124,6 +175,10 @@ void mstring::insert(const char* str, int i){
     delete[] substr;
 }
 void mstring::insert(char c, int i){
+    if(i < 0 || (size_t)i > sz){
+        Exception ex = {"insert", i, 0, false};
+        throw ex;
+    }
     char* substr = new char[2];
     substr[0] = c;
     substr[1] = '\0';
@@ -188,4 +243,15 @@ mstring ::mstring(){
     sz = 0;
     cap = N;
     arr[0] = '\0';
+}
+
+int main() {
+    try{
+        error();
+    }
+    catch(const Exception& ex){
+        ex.print();
+        std::cout << std::endl;
+    }
+    return 0;
 }

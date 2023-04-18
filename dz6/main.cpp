@@ -5,7 +5,7 @@
 
 template<typename T>
 int is_in(T* arr, size_t size, T elem){
-    if(arr == nullptr) return -1;
+    if(size == 0) return -1;
     for(int i=0; (size_t)i < size; i++){
         if(arr[i] == elem) return i;
     }
@@ -38,10 +38,10 @@ public:
     size_t min_index()const;
 
     template<typename U>
-    friend const Set<U> operator+(Set<U> first, const Set<U>& second);
+    friend Set<U> operator+(Set<U> first, const Set<U>& second);
     template<typename U>
-    friend const Set<U> operator*(const Set<U>& first, const Set<U>& second);
-    const Set& operator=(const Set& another);
+    friend Set<U> operator*(const Set<U>& first, const Set<U>& second);
+    Set& operator=(const Set& another);
 };
 
 //Constructors
@@ -64,10 +64,11 @@ Set<T>::Set(T* arr, size_t size){
     size_ = j;
 }
 template<typename T>
-Set<T>::Set(const Set<T>& another){\
+Set<T>::Set(const Set<T>& another){
     if(another.size_ == 0){
         size_ = cap_ = 0;
         arr_ = nullptr;
+        return;
     }
     cap_ = size_ = another.size_;
     arr_ = new T[size_];
@@ -85,17 +86,17 @@ void Set<T>::add(T elem){
 }
 template<typename T>
 void Set<T>::add(T* new_arr, size_t new_size){
-    if(new_arr == nullptr) return; 
+    if(new_size == 0) return; 
     if(cap_ - size_ < new_size) this->increase(new_size - (cap_-size_));
     for(size_t i=0; i<new_size; i++) this->add(new_arr[i]);
 }
 template<typename T>
 void Set<T>::increase(size_t n){
-    if(arr_ == nullptr){
+    if(cap_ == 0){
         arr_ = new T[n];
         return;
-    } 
-    T* tmp_arr = new T[size_];
+    }
+    T tmp_arr[size_];
     my_memcpy(tmp_arr, arr_, size_);
     delete[] arr_;
     arr_ = new T[size_ + n];
@@ -129,12 +130,15 @@ size_t Set<T>::min_index()const{
 
 template<typename T>
 void Set<T>::print()const{
-    if(size_ == 0) return;
+    if(size_ == 0) {
+        std::cout << std::endl;
+        return;
+    }
     Set tmp = *this;
     T min = tmp.arr_[tmp.min_index()];
     std::cout << min;
     tmp.del(min);
-    for(size_t i=1; i<size_; i++){
+    for(size_t i=1; i<size_; ++i){
         min = tmp.arr_[tmp.min_index()];
         std::cout << ' ' << min;
         tmp.del(min);
@@ -144,14 +148,12 @@ void Set<T>::print()const{
 
 //Operators
 template<typename T>
-const Set<T> operator+(Set<T> first, const Set<T>& second){
-    if(first.size_ == 0) return second;
-    if(second.size_ == 0) return first;
+Set<T> operator+(Set<T> first, const Set<T>& second){
     first.add(second.arr_, second.size_);
     return first;
 }
 template<typename T>
-const Set<T> operator*(const Set<T>& first, const Set<T>& second){
+Set<T> operator*(const Set<T>& first, const Set<T>& second){
     Set<T> res;
     if((first.size_ == 0) || (second.size_ == 0)){
         return res;
@@ -164,11 +166,11 @@ const Set<T> operator*(const Set<T>& first, const Set<T>& second){
     return res;
 }
 template<typename T>
-const Set<T>& Set<T>::operator=(const Set<T>& another){
+Set<T>& Set<T>::operator=(const Set<T>& another){
     if(this == &another) return *this;
     if(another.size_ == 0){
-        size_ = cap_ = 0;
-        arr_ = nullptr;
+        size_ = 0;
+        return *this;
     }
     cap_ = size_ = another.size_;
     arr_ = new T[size_];
@@ -176,28 +178,6 @@ const Set<T>& Set<T>::operator=(const Set<T>& another){
     return *this;
 }
 
-/*int main(){
-        int a[] = { 1,2,3,4,5 };
-        int b[] = { 8,7,6};
-        int c[] = {6};
-        Set <int> s1(a,5),s2,s3,s4,s5(b, 3);
-        std::cout << "s1 = ";
-        s1.print();
-        std::cout << "s2 = ";
-        s2.print();
-        std::cout << "s5 = ";
-        s5.print();
-        s1.add(6);
-        s1.add(1);
-        std::cout << "s1 = ";
-        s1.print();
-        s1.del(1);
-        s1.del(6);
-        std::cout << "s1 = ";
-        s1.print();
-        s2 = (s5 + s1) * s2;
-        std::cout << "s2 = ";
-        s2.print();
-        
-        return 0;
-}*/
+int main(){
+    return 0;
+}
