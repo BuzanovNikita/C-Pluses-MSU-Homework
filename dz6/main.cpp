@@ -24,6 +24,8 @@ class Set{
     T* arr_;
     size_t size_;
     size_t cap_;
+    size_t min_index()const;
+    void increase(size_t n);
 public:
     Set();
     Set(T* arr, size_t size);
@@ -31,12 +33,10 @@ public:
     ~Set(){if(arr_ != nullptr) delete[] arr_;}
     void add(T elem);
     void add(T* new_arr, size_t new_size);
-    void increase(size_t n);
     void del(T elem);
     bool in(T elem)const{return is_in(arr_, size_, elem) >= 0;}
     void print()const;
-    size_t min_index()const;
-
+    
     template<typename U>
     friend Set<U> operator+(Set<U> first, const Set<U>& second);
     template<typename U>
@@ -178,6 +178,6 @@ Set<T>& Set<T>::operator=(const Set<T>& another){
     return *this;
 }
 
-int main(){
+/*int main(){
     return 0;
-}
+}*/
